@@ -9,28 +9,28 @@ module cv32e40p_sparv_refill_arbiter_tb;
   always #5 clk=~clk;
   cv32e40p_sparv_refill_arbiter dut(.*);
   task tick; begin @(posedge clk); #1; end endtask
-  task expect(input logic c,input string m); begin if(!c) begin $display("FAIL: %s",m); $fatal(1); end end endtask
+  task check(input logic c,input string m); begin if(!c) begin $display("FAIL: %s",m); $fatal(1); end end endtask
   initial begin
     repeat(2) tick(); rst_n=1; tick();
     refill_req_ready_i=1;
     demand_valid_i=1; demand_addr_i=32'h100;
     prefetch_valid_i=1; prefetch_addr_i=32'h200; #1;
-    expect(refill_req_valid_o && refill_req_addr_o==32'h100,"demand must win");
-    expect(demand_accept_o && !prefetch_accept_o,"demand handshake");
+    check(refill_req_valid_o && refill_req_addr_o==32'h100,"demand must win");
+    check(demand_accept_o && !prefetch_accept_o,"demand handshake");
     tick(); demand_valid_i=0;
-    refill_complete_i=1; #1; expect(!refill_is_prefetch_o,"demand completion classification");
+    refill_complete_i=1; #1; check(!refill_is_prefetch_o,"demand completion classification");
     tick(); refill_complete_i=0;
 
     prefetch_valid_i=1; prefetch_cached_i=0; #1;
-    expect(refill_req_valid_o && refill_req_addr_o==32'h200,"prefetch may use idle refill path");
-    expect(prefetch_accept_o,"prefetch handshake"); tick();
+    check(refill_req_valid_o && refill_req_addr_o==32'h200,"prefetch may use idle refill path");
+    check(prefetch_accept_o,"prefetch handshake"); tick();
     prefetch_valid_i=0; refill_complete_i=1; #1;
-    expect(refill_is_prefetch_o,"prefetch completion classification"); tick(); refill_complete_i=0;
+    check(refill_is_prefetch_o,"prefetch completion classification"); tick(); refill_complete_i=0;
 
     prefetch_valid_i=1; prefetch_cached_i=1; #1;
-    expect(!refill_req_valid_o,"cached prefetch must be suppressed");
+    check(!refill_req_valid_o,"cached prefetch must be suppressed");
     prefetch_cached_i=0; flush_i=1; tick(); flush_i=0; prefetch_valid_i=0;
-    refill_complete_i=1; #1; expect(!refill_is_prefetch_o,"flush must clear source tracking");
+    refill_complete_i=1; #1; check(!refill_is_prefetch_o,"flush must clear source tracking");
     $display("PASS: SPARV refill arbiter"); $finish;
   end
 endmodule
