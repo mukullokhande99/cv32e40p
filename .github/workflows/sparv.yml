@@ -17,13 +17,59 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install RTL tools
         run: sudo apt-get update && sudo apt-get install -y iverilog verilator
+
       - name: Compile and run SPARV prefetch controller test
         run: |
           iverilog -g2012 -o /tmp/sparv_prefetch \
             rtl/cv32e40p_sparv_prefetch_ctrl.sv \
             bhv/cv32e40p_sparv_prefetch_ctrl_tb.sv
           vvp /tmp/sparv_prefetch
-      - name: Verilator lint SPARV prefetch controller
+
+      - name: Compile and run SPARV prefetch directory test
+        run: |
+          iverilog -g2012 -o /tmp/sparv_prefetch_dir \
+            rtl/cv32e40p_sparv_prefetch_directory.sv \
+            bhv/cv32e40p_sparv_prefetch_directory_tb.sv
+          vvp /tmp/sparv_prefetch_dir
+
+      - name: Compile and run SPARV refill arbiter test
+        run: |
+          iverilog -g2012 -o /tmp/sparv_refill_arb \
+            rtl/cv32e40p_sparv_refill_arbiter.sv \
+            bhv/cv32e40p_sparv_refill_arbiter_tb.sv
+          vvp /tmp/sparv_refill_arb
+
+      - name: Compile and run SPARV SIMD MAC/DOTP reference test
+        run: |
+          iverilog -g2012 -o /tmp/sparv_mac_ref \
+            rtl/cv32e40p_sparv_mac_dotp_ref.sv \
+            bhv/cv32e40p_sparv_mac_dotp_ref_tb.sv
+          vvp /tmp/sparv_mac_ref
+
+      - name: Elaborate SPARV IF stage
+        run: |
+          iverilog -g2012 -I rtl/include -s cv32e40p_sparv_if_stage -o /tmp/sparv_if \
+            rtl/include/cv32e40p_pkg.sv \
+            rtl/cv32e40p_compressed_decoder.sv \
+            rtl/cv32e40p_dual_decode_128.sv \
+            rtl/cv32e40p_hamsa_frontend.sv \
+            rtl/cv32e40p_hamsa_refill_32to128.sv \
+            rtl/cv32e40p_hamsa_refill_native128.sv \
+            rtl/cv32e40p_sparv_prefetch_ctrl.sv \
+            rtl/cv32e40p_sparv_prefetch_directory.sv \
+            rtl/cv32e40p_sparv_refill_arbiter.sv \
+            rtl/cv32e40p_sparv_if_stage.sv
+
+      - name: Elaborate SPARV counters
+        run: |
+          iverilog -g2012 -s cv32e40p_sparv_prefetch_counters -o /tmp/sparv_counters \
+            rtl/cv32e40p_sparv_prefetch_counters.sv
+
+      - name: Verilator lint SPARV-specific RTL
         run: |
           verilator --lint-only -Wno-fatal \
-            rtl/cv32e40p_sparv_prefetch_ctrl.sv
+            rtl/cv32e40p_sparv_prefetch_ctrl.sv \
+            rtl/cv32e40p_sparv_prefetch_directory.sv \
+            rtl/cv32e40p_sparv_refill_arbiter.sv \
+            rtl/cv32e40p_sparv_prefetch_counters.sv \
+            rtl/cv32e40p_sparv_mac_dotp_ref.sv
