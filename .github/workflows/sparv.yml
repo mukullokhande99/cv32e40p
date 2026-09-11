@@ -54,7 +54,7 @@ jobs:
             bhv/cv32e40p_sparv_mac_dotp_engine_tb.sv
           vvp /tmp/sparv_mac_engine
 
-      - name: Compile and run integrated SPARV multiplier test
+      - name: Compile and run integrated SPARV multiplier stress test
         run: |
           iverilog -g2012 -I rtl/include -o /tmp/sparv_mult \
             rtl/include/cv32e40p_pkg.sv \
@@ -99,7 +99,9 @@ jobs:
 
       - name: Generate SPARV full core
         run: |
-          python3 -m py_compile util/gen_sparv_core.py evaluation/parse_sparv_log.py
+          python3 -m py_compile util/gen_sparv_core.py util/gen_sparv_sim.py \
+            evaluation/parse_sparv_log.py evaluation/run_example_vsim.py \
+            evaluation/run_ppa_matrix.py
           python3 util/gen_sparv_core.py
           test -s rtl/cv32e40p_sparv_ex_stage.sv
           test -s rtl/cv32e40p_core_sparv.sv
@@ -109,7 +111,27 @@ jobs:
           grep -q "cv32e40p_sparv_ex_stage" rtl/cv32e40p_core_sparv.sv
           grep -q "cv32e40p_sparv_mult mult_i" rtl/cv32e40p_sparv_ex_stage.sv
           grep -q "cv32e40p_sparv_mult.sv" cv32e40p_manifest_sparv.flist
-          grep -q "cv32e40p_sparv_ex_stage.sv" cv32e40p_manifest_sparv.flist
+
+      - name: Generate executable SPARV-32 simulation
+        run: |
+          python3 util/gen_sparv_sim.py --native 0
+          test -s rtl/cv32e40p_wrapper_sparv_32.sv
+          test -s example_tb/core/cv32e40p_tb_subsystem_sparv_32.sv
+          test -s example_tb/core/tb_top_sparv_32.sv
+          test -s cv32e40p_manifest_sparv_32.flist
+          grep -q "cv32e40p_core_sparv" rtl/cv32e40p_wrapper_sparv_32.sv
+          grep -q "SPARV_METRIC" example_tb/core/tb_top_sparv_32.sv
+          grep -q "cv32e40p_sparv_ex_stage.sv" cv32e40p_manifest_sparv_32.flist
+
+      - name: Generate executable SPARV-128 simulation
+        run: |
+          python3 util/gen_sparv_sim.py --native 1
+          test -s rtl/cv32e40p_wrapper_sparv_128.sv
+          test -s example_tb/core/cv32e40p_tb_subsystem_sparv_128.sv
+          test -s example_tb/core/tb_top_sparv_128.sv
+          test -s cv32e40p_manifest_sparv_128.flist
+          grep -q "cv32e40p_core_sparv" rtl/cv32e40p_wrapper_sparv_128.sv
+          grep -q "SPARV_METRIC" example_tb/core/tb_top_sparv_128.sv
 
       - name: Smoke SPARV evaluation parser
         run: |
