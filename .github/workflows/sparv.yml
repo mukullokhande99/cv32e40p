@@ -65,6 +65,23 @@ jobs:
           iverilog -g2012 -s cv32e40p_sparv_prefetch_counters -o /tmp/sparv_counters \
             rtl/cv32e40p_sparv_prefetch_counters.sv
 
+      - name: Generate SPARV full core
+        run: |
+          python3 -m py_compile util/gen_sparv_core.py
+          python3 util/gen_sparv_core.py
+          test -s rtl/cv32e40p_core_sparv.sv
+          test -s cv32e40p_manifest_sparv.flist
+          grep -q "module cv32e40p_core_sparv" rtl/cv32e40p_core_sparv.sv
+          grep -q "cv32e40p_sparv_if_stage" rtl/cv32e40p_core_sparv.sv
+
+      - name: Verilator lint generated SPARV full core
+        run: |
+          export DESIGN_RTL_DIR="$PWD/rtl"
+          verilator --lint-only -Wno-fatal \
+            -Wno-BLKANDNBLK -GNUM_MHPMCOUNTERS=29 \
+            --top-module cv32e40p_core_sparv \
+            -f cv32e40p_manifest_sparv.flist
+
       - name: Verilator lint SPARV-specific RTL
         run: |
           verilator --lint-only -Wno-fatal \
