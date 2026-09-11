@@ -54,6 +54,13 @@ jobs:
             bhv/cv32e40p_sparv_mac_dotp_engine_tb.sv
           vvp /tmp/sparv_mac_engine
 
+      - name: Elaborate SPARV accelerator lane
+        run: |
+          iverilog -g2012 -s cv32e40p_sparv_accel_lane -o /tmp/sparv_accel_lane \
+            rtl/cv32e40p_sparv_mac_dotp_ref.sv \
+            rtl/cv32e40p_sparv_mac_dotp_engine.sv \
+            rtl/cv32e40p_sparv_accel_lane.sv
+
       - name: Elaborate SPARV IF stage
         run: |
           iverilog -g2012 -I rtl/include -s cv32e40p_sparv_if_stage -o /tmp/sparv_if \
@@ -88,6 +95,7 @@ jobs:
           grep -q "module cv32e40p_core_sparv" rtl/cv32e40p_core_sparv.sv
           grep -q "cv32e40p_sparv_if_stage" rtl/cv32e40p_core_sparv.sv
           grep -q "cv32e40p_sparv_mac_dotp_engine.sv" cv32e40p_manifest_sparv.flist
+          grep -q "cv32e40p_sparv_accel_lane.sv" cv32e40p_manifest_sparv.flist
 
       - name: Verilator lint generated SPARV full core
         run: |
@@ -109,4 +117,5 @@ jobs:
             rtl/cv32e40p_sparv_l0_prefetch_meta.sv \
             rtl/cv32e40p_sparv_prefetch_counters.sv \
             rtl/cv32e40p_sparv_mac_dotp_ref.sv \
-            rtl/cv32e40p_sparv_mac_dotp_engine.sv
+            rtl/cv32e40p_sparv_mac_dotp_engine.sv \
+            rtl/cv32e40p_sparv_accel_lane.sv
