@@ -44,10 +44,11 @@ module cv32e40p_sparv_mult_tb;
     end
   endtask
 
-  task automatic finish_accel;
+  task automatic retire_accel;
     begin
-      @(posedge clk);
+      // Model the EX stage removing enable as it accepts ready in this cycle.
       enable = 0;
+      ex_ready = 1;
       @(posedge clk);
     end
   endtask
@@ -61,28 +62,25 @@ module cv32e40p_sparv_mult_tb;
     repeat (2) @(posedge clk); rst_n = 1; @(posedge clk);
 
     // 4x8 unsigned DOTP: 1*5 + 2*6 + 3*7 + 4*8 + 10 = 80.
+    // Apply backpressure before completion so the HOLD state is exercised.
     operator = MUL_DOT8; dot_signed = 2'b00;
     dot_a = 32'h04030201; dot_b = 32'h08070605; dot_c = 32'd10;
-    enable = 1; @(posedge clk);
+    ex_ready = 0; enable = 1; @(posedge clk);
     if (ready) $fatal(1, "DOT8 unexpectedly completed in one cycle");
     wait_ready(8);
     if (result !== 32'd80) $fatal(1, "DOT8 mismatch: %0d", result);
-
-    // Hold a completed result under EX backpressure. The result must be stable.
-    ex_ready = 0;
     repeat (3) begin
       @(posedge clk);
       if (!ready || result !== 32'd80)
         $fatal(1, "accelerated result not held under EX backpressure");
     end
-    ex_ready = 1;
-    finish_accel();
+    retire_accel();
 
     // Signed scalar MAC: (-3)*7 + 100 = 79.
     operator = MUL_MAC32; op_a = -32'sd3; op_b = 32'd7; op_c = 32'd100;
     enable = 1; @(posedge clk); wait_ready(20);
     if ($signed(result) !== 32'sd79) $fatal(1, "MAC32 mismatch: %0d", $signed(result));
-    finish_accel();
+    retire_accel();
 
     // Back-to-back accelerated operation after the previous result retires.
     operator = MUL_DOT16; is_clpx = 0; dot_signed = 2'b11;
@@ -90,7 +88,7 @@ module cv32e40p_sparv_mult_tb;
     enable = 1; @(posedge clk); wait_ready(12);
     // 4*(-3) + (-2)*5 + 7 = -15.
     if ($signed(result) !== -32'sd15) $fatal(1, "DOT16 mismatch: %0d", $signed(result));
-    finish_accel();
+    retire_accel();
 
     // A non-accelerated integer MUL remains compatible with baseline path.
     operator = MUL_I; op_a = 32'd9; op_b = 32'd11; op_c = 0; enable = 1;
