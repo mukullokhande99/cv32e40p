@@ -2,9 +2,14 @@
 """Generate a SPARV full-core variant on top of the verified HAMSA H2 core.
 
 The HAMSA H2 generator remains the source of truth for dual-issue backend and
-architectural integration. SPARV replaces only the H2 fetch stage with
+architectural integration. SPARV replaces the H2 fetch stage with
 cv32e40p_sparv_if_stage, which adds next-line prefetching and associated
 metadata/observability while preserving the same architectural IF contract.
+
+The SPARV arithmetic files are also included in the generated manifest. The
+published paper does not disclose the exact CORDIC micro-rotation schedule or
+custom opcode encoding, so the current accelerator is exposed behind a stable
+valid/ready execution interface and is not yet wired to an invented ISA opcode.
 
 Generated outputs:
   rtl/cv32e40p_core_sparv.sv
@@ -44,8 +49,8 @@ def main() -> int:
                         "SPARV IF replacement")
 
     # The SPARV IF stage is interface-compatible with HAMSA H2 for all ports
-    # used by the core; its additional prefetch telemetry ports are optional
-    # named outputs and can remain unconnected at this integration level.
+    # used by the core. Its extra prefetch telemetry is intentionally optional
+    # at this stage; benchmark/evaluation wrappers can bind to it separately.
     dst.write_text(text)
 
     manifest = (ROOT / "cv32e40p_manifest.flist").read_text()
@@ -59,6 +64,7 @@ ${DESIGN_RTL_DIR}/cv32e40p_sparv_prefetch_directory.sv
 ${DESIGN_RTL_DIR}/cv32e40p_sparv_refill_arbiter.sv
 ${DESIGN_RTL_DIR}/cv32e40p_sparv_prefetch_counters.sv
 ${DESIGN_RTL_DIR}/cv32e40p_sparv_mac_dotp_ref.sv
+${DESIGN_RTL_DIR}/cv32e40p_sparv_mac_dotp_engine.sv
 ${DESIGN_RTL_DIR}/cv32e40p_sparv_if_stage.sv
 """
     anchor = "${DESIGN_RTL_DIR}/cv32e40p_hamsa_if_stage.sv\n"
