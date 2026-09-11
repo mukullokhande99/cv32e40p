@@ -101,7 +101,7 @@ jobs:
         run: |
           python3 -m py_compile util/gen_sparv_core.py util/gen_sparv_sim.py \
             evaluation/parse_sparv_log.py evaluation/run_example_vsim.py \
-            evaluation/run_ppa_matrix.py
+            evaluation/run_ppa_matrix.py evaluation/run_benchmark_matrix.py
           python3 util/gen_sparv_core.py
           test -s rtl/cv32e40p_sparv_ex_stage.sv
           test -s rtl/cv32e40p_core_sparv.sv
@@ -139,6 +139,15 @@ jobs:
           python3 evaluation/parse_sparv_log.py /tmp/sparv.log \
             --configuration sparv --benchmark smoke >/tmp/sparv.csv
           grep -q 'sparv,smoke' /tmp/sparv.csv
+
+      - name: Smoke mixed benchmark matrix parser
+        run: |
+          python3 evaluation/run_benchmark_matrix.py \
+            --benchmarks smoke --configs SPARV-32 \
+            --command "printf 'HAMSA_METRIC cycles=100 issue1_retired=80 issue2_retired=20\\nSPARV_METRIC cycles=100 retired=100 dual_pairs=20 prefetch_useful=5 mac8_ops=2\\n'" \
+            --out /tmp/matrix.csv
+          grep -q 'SPARV-32' /tmp/matrix.csv
+          grep -q ',100,' /tmp/matrix.csv
 
       - name: Verilator lint generated SPARV full core
         run: |
