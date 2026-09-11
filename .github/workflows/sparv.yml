@@ -46,6 +46,14 @@ jobs:
             bhv/cv32e40p_sparv_mac_dotp_ref_tb.sv
           vvp /tmp/sparv_mac_ref
 
+      - name: Compile and run SPARV multicycle MAC/DOTP engine test
+        run: |
+          iverilog -g2012 -o /tmp/sparv_mac_engine \
+            rtl/cv32e40p_sparv_mac_dotp_ref.sv \
+            rtl/cv32e40p_sparv_mac_dotp_engine.sv \
+            bhv/cv32e40p_sparv_mac_dotp_engine_tb.sv
+          vvp /tmp/sparv_mac_engine
+
       - name: Elaborate SPARV IF stage
         run: |
           iverilog -g2012 -I rtl/include -s cv32e40p_sparv_if_stage -o /tmp/sparv_if \
@@ -60,10 +68,16 @@ jobs:
             rtl/cv32e40p_sparv_refill_arbiter.sv \
             rtl/cv32e40p_sparv_if_stage.sv
 
-      - name: Elaborate SPARV counters
+      - name: Elaborate SPARV counters and refill helpers
         run: |
           iverilog -g2012 -s cv32e40p_sparv_prefetch_counters -o /tmp/sparv_counters \
             rtl/cv32e40p_sparv_prefetch_counters.sv
+          iverilog -g2012 -s cv32e40p_sparv_l0_prefetch_meta -o /tmp/sparv_meta \
+            rtl/cv32e40p_sparv_l0_prefetch_meta.sv
+          iverilog -g2012 -s cv32e40p_sparv_refill_manager -o /tmp/sparv_refill_mgr \
+            rtl/cv32e40p_hamsa_refill_32to128.sv \
+            rtl/cv32e40p_hamsa_refill_native128.sv \
+            rtl/cv32e40p_sparv_refill_manager.sv
 
       - name: Generate SPARV full core
         run: |
@@ -73,6 +87,7 @@ jobs:
           test -s cv32e40p_manifest_sparv.flist
           grep -q "module cv32e40p_core_sparv" rtl/cv32e40p_core_sparv.sv
           grep -q "cv32e40p_sparv_if_stage" rtl/cv32e40p_core_sparv.sv
+          grep -q "cv32e40p_sparv_mac_dotp_engine.sv" cv32e40p_manifest_sparv.flist
 
       - name: Verilator lint generated SPARV full core
         run: |
@@ -85,8 +100,13 @@ jobs:
       - name: Verilator lint SPARV-specific RTL
         run: |
           verilator --lint-only -Wno-fatal \
+            rtl/cv32e40p_hamsa_refill_32to128.sv \
+            rtl/cv32e40p_hamsa_refill_native128.sv \
             rtl/cv32e40p_sparv_prefetch_ctrl.sv \
             rtl/cv32e40p_sparv_prefetch_directory.sv \
             rtl/cv32e40p_sparv_refill_arbiter.sv \
+            rtl/cv32e40p_sparv_refill_manager.sv \
+            rtl/cv32e40p_sparv_l0_prefetch_meta.sv \
             rtl/cv32e40p_sparv_prefetch_counters.sv \
-            rtl/cv32e40p_sparv_mac_dotp_ref.sv
+            rtl/cv32e40p_sparv_mac_dotp_ref.sv \
+            rtl/cv32e40p_sparv_mac_dotp_engine.sv
