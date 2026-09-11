@@ -8,8 +8,9 @@ metadata/observability while preserving the same architectural IF contract.
 
 The SPARV arithmetic files are also included in the generated manifest. The
 published paper does not disclose the exact CORDIC micro-rotation schedule or
-custom opcode encoding, so the current accelerator is exposed behind a stable
-valid/ready execution interface and is not yet wired to an invented ISA opcode.
+complete custom opcode encoding, so the accelerator currently consumes decoded
+micro-operations behind a stable valid/ready interface instead of inventing an
+ISA encoding.
 
 Generated outputs:
   rtl/cv32e40p_core_sparv.sv
@@ -65,6 +66,7 @@ ${DESIGN_RTL_DIR}/cv32e40p_sparv_refill_arbiter.sv
 ${DESIGN_RTL_DIR}/cv32e40p_sparv_prefetch_counters.sv
 ${DESIGN_RTL_DIR}/cv32e40p_sparv_mac_dotp_ref.sv
 ${DESIGN_RTL_DIR}/cv32e40p_sparv_mac_dotp_engine.sv
+${DESIGN_RTL_DIR}/cv32e40p_sparv_accel_lane.sv
 ${DESIGN_RTL_DIR}/cv32e40p_sparv_if_stage.sv
 """
     anchor = "${DESIGN_RTL_DIR}/cv32e40p_hamsa_if_stage.sv\n"
