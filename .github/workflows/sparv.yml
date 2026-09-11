@@ -1,0 +1,29 @@
+name: sparv
+
+on:
+  push:
+    branches: [feature/sparv]
+  pull_request:
+    branches: [feature/hamsa-dual-issue, CV32e40p-original, master]
+
+concurrency:
+  group: sparv-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install RTL tools
+        run: sudo apt-get update && sudo apt-get install -y iverilog verilator
+      - name: Compile and run SPARV prefetch controller test
+        run: |
+          iverilog -g2012 -o /tmp/sparv_prefetch \
+            rtl/cv32e40p_sparv_prefetch_ctrl.sv \
+            bhv/cv32e40p_sparv_prefetch_ctrl_tb.sv
+          vvp /tmp/sparv_prefetch
+      - name: Verilator lint SPARV prefetch controller
+        run: |
+          verilator --lint-only -Wno-fatal \
+            rtl/cv32e40p_sparv_prefetch_ctrl.sv
