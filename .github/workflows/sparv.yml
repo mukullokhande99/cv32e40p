@@ -54,6 +54,17 @@ jobs:
             bhv/cv32e40p_sparv_mac_dotp_engine_tb.sv
           vvp /tmp/sparv_mac_engine
 
+      - name: Compile and run integrated SPARV multiplier test
+        run: |
+          iverilog -g2012 -I rtl/include -o /tmp/sparv_mult \
+            rtl/include/cv32e40p_pkg.sv \
+            rtl/cv32e40p_mult.sv \
+            rtl/cv32e40p_sparv_mac_dotp_ref.sv \
+            rtl/cv32e40p_sparv_mac_dotp_engine.sv \
+            rtl/cv32e40p_sparv_mult.sv \
+            bhv/cv32e40p_sparv_mult_tb.sv
+          vvp /tmp/sparv_mult
+
       - name: Elaborate SPARV accelerator lane
         run: |
           iverilog -g2012 -s cv32e40p_sparv_accel_lane -o /tmp/sparv_accel_lane \
@@ -88,14 +99,24 @@ jobs:
 
       - name: Generate SPARV full core
         run: |
-          python3 -m py_compile util/gen_sparv_core.py
+          python3 -m py_compile util/gen_sparv_core.py evaluation/parse_sparv_log.py
           python3 util/gen_sparv_core.py
+          test -s rtl/cv32e40p_sparv_ex_stage.sv
           test -s rtl/cv32e40p_core_sparv.sv
           test -s cv32e40p_manifest_sparv.flist
           grep -q "module cv32e40p_core_sparv" rtl/cv32e40p_core_sparv.sv
           grep -q "cv32e40p_sparv_if_stage" rtl/cv32e40p_core_sparv.sv
-          grep -q "cv32e40p_sparv_mac_dotp_engine.sv" cv32e40p_manifest_sparv.flist
-          grep -q "cv32e40p_sparv_accel_lane.sv" cv32e40p_manifest_sparv.flist
+          grep -q "cv32e40p_sparv_ex_stage" rtl/cv32e40p_core_sparv.sv
+          grep -q "cv32e40p_sparv_mult mult_i" rtl/cv32e40p_sparv_ex_stage.sv
+          grep -q "cv32e40p_sparv_mult.sv" cv32e40p_manifest_sparv.flist
+          grep -q "cv32e40p_sparv_ex_stage.sv" cv32e40p_manifest_sparv.flist
+
+      - name: Smoke SPARV evaluation parser
+        run: |
+          printf 'cycles=100 retired=125 dual_pairs=30 l0_lookups=50 l0_hits=40 demand_misses=10 prefetch_fills=8 prefetch_useful=6 tcim_requests=20 mac8_ops=4 sparv_stall_cycles=7\n' >/tmp/sparv.log
+          python3 evaluation/parse_sparv_log.py /tmp/sparv.log \
+            --configuration sparv --benchmark smoke >/tmp/sparv.csv
+          grep -q 'sparv,smoke' /tmp/sparv.csv
 
       - name: Verilator lint generated SPARV full core
         run: |
@@ -107,7 +128,9 @@ jobs:
 
       - name: Verilator lint SPARV-specific RTL
         run: |
-          verilator --lint-only -Wno-fatal \
+          verilator --lint-only -Wno-fatal -Irtl/include \
+            rtl/include/cv32e40p_pkg.sv \
+            rtl/cv32e40p_mult.sv \
             rtl/cv32e40p_hamsa_refill_32to128.sv \
             rtl/cv32e40p_hamsa_refill_native128.sv \
             rtl/cv32e40p_sparv_prefetch_ctrl.sv \
@@ -118,4 +141,5 @@ jobs:
             rtl/cv32e40p_sparv_prefetch_counters.sv \
             rtl/cv32e40p_sparv_mac_dotp_ref.sv \
             rtl/cv32e40p_sparv_mac_dotp_engine.sv \
-            rtl/cv32e40p_sparv_accel_lane.sv
+            rtl/cv32e40p_sparv_accel_lane.sv \
+            rtl/cv32e40p_sparv_mult.sv
