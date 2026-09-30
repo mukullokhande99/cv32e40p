@@ -1,22 +1,6 @@
 # Issue2 Xpulp integration status
+The architectural Issue2 decoder now recognizes an official CORE-V PULP/Xcv two-source packed-ALU subset under OPCODE_CUSTOM_3 and drives the native CV32E40P ALU vector mode. Supported register-register .h/.b operations are add, sub, signed min/max, shifts, OR/XOR/AND and signed compare forms represented in the primary decoder. The HAMSA IDU classifies the same subset as two-source/one-destination and therefore reuses existing RAW/WAW checks, forwarding and in-order writeback.
 
-The HAMSA secondary lane now decodes an official CORE-V PULP packed two-source ALU subset directly from OPCODE_CUSTOM_3 using the same instruction fields as the primary CV32E40P decoder.
+Scalar-replicate/immediate forms, unsigned variants not explicitly decoded, dot products/MAC, three-source operations, post-increment memory, hardware-loop and system/control operations remain Issue1-only. This boundary is intentional: those classes require extra operand/dependency or side-effect semantics.
 
-Supported normal register-register packed .h/.b forms on Issue2:
-- cv.add / cv.sub
-- cv.min / cv.max
-- cv.srl / cv.sra / cv.sll
-- cv.or / cv.xor / cv.and
-- cv.cmpeq / cv.cmpne / cv.cmpgt / cv.cmpge / cv.cmplt / cv.cmple
-
-The secondary execution lane reuses cv32e40p_alu and drives its vector_mode input, preserving existing ALU semantics rather than inventing a second incompatible SIMD implementation. The IDU only admits dependency-simple two-source/one-destination normal forms.
-
-Still deliberately excluded from Issue2:
-- scalar-replicate and immediate-vector forms
-- dot products and sdot accumulate
-- three-source/rd-as-source operations
-- post-increment/indexed memory
-- hardware-loop/system/CSR/control-flow instructions
-- vector operations that require extra RF ports or side effects
-
-Issue2 Xcv retirement is now separately tagged/counted for evaluation. Full-core architectural regression remains mandatory before performance/PPA claims.
+Directed CI checks official encoding acceptance/rejection. Full-core architectural regression is still required before performance/PPA claims.
