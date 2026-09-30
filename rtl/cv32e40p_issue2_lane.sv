@@ -23,7 +23,8 @@ module cv32e40p_issue2_lane
     output logic        decode_illegal_o,
     output logic        wb_valid_o,
     output logic [4:0]  wb_rd_o,
-    output logic [31:0] wb_data_o
+    output logic [31:0] wb_data_o,
+    output logic        wb_xpulp_o
 );
 
   logic        dec_valid;
@@ -35,6 +36,7 @@ module cv32e40p_issue2_lane
   logic [31:0] dec_operand_b;
 
   logic ex_ready;
+  logic xpulp_q;
 
   cv32e40p_issue2_decoder issue2_decoder_i (
       .valid_i       (issue_valid_i && ex_ready),
@@ -69,6 +71,13 @@ module cv32e40p_issue2_lane
       .result_o      (wb_data_o)
   );
 
+  always_ff @(posedge clk or negedge rst_n) begin
+    if (!rst_n) xpulp_q <= 1'b0;
+    else if (kill_i) xpulp_q <= 1'b0;
+    else if (ex_ready) xpulp_q <= issue_valid_i && (instr_i[6:0] == 7'b1111011);
+  end
+
+  assign wb_xpulp_o = wb_valid_o && xpulp_q;
   assign issue_ready_o = ex_ready;
 
 endmodule
