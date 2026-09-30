@@ -9,7 +9,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: sudo apt-get update && sudo apt-get install -y iverilog
-      - run: iverilog -g2012 -Irtl -o xpdec rtl/cv32e40p_pkg.sv rtl/cv32e40p_issue2_decoder.sv bhv/cv32e40p_issue2_xpulp_decode_tb.sv
+      - run: iverilog -g2012 -Irtl -o xpdec rtl/include/cv32e40p_pkg.sv rtl/cv32e40p_issue2_decoder.sv bhv/cv32e40p_issue2_xpulp_decode_tb.sv
       - run: vvp xpdec
   packed-unit:
     runs-on: ubuntu-latest
