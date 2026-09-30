@@ -47,6 +47,7 @@ def main():
         "issue2_issue_rate",
         "issue2_retirement_rate",
         "pair_utilization",
+        "xpulp_share_issue2",
         "issue2_block_rate",
         "issue2_kill_rate",
         "l0_hit_rate",
@@ -61,6 +62,7 @@ def main():
         i1 = f(row, "issue1_retired")
         i2_issue = f(row, "issue2_issued")
         i2_ret = f(row, "issue2_retired")
+        i2_xp = f(row, "issue2_xpulp_retired")
         i2_blk = f(row, "issue2_blocked")
         i2_kill = f(row, "issue2_killed")
         lookups = f(row, "l0_lookups")
@@ -86,6 +88,7 @@ def main():
             "issue2_issue_rate": fmt(safe_div(i2_issue, cycles)),
             "issue2_retirement_rate": fmt(safe_div(i2_ret, cycles)),
             "pair_utilization": fmt(safe_div(i2_ret, total)),
+            "xpulp_share_issue2": fmt(safe_div(i2_xp, i2_ret)),
             "issue2_block_rate": fmt(safe_div(i2_blk, (i2_issue + i2_blk) if i2_issue is not None and i2_blk is not None else None)),
             "issue2_kill_rate": fmt(safe_div(i2_kill, i2_issue)),
             "l0_hit_rate": fmt(safe_div(hits, lookups)),
