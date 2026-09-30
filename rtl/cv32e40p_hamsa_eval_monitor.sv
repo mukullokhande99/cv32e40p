@@ -18,6 +18,7 @@ module cv32e40p_hamsa_eval_monitor (
     input logic issue2_retire_i,
     input logic issue2_blocked_i,
     input logic issue2_killed_i,
+    input logic issue2_xpulp_retire_i,
     input logic l0_lookup_i,
     input logic l0_hit_i,
 
@@ -34,6 +35,7 @@ module cv32e40p_hamsa_eval_monitor (
     output logic [63:0] issue2_retired_o,
     output logic [63:0] issue2_blocked_o,
     output logic [63:0] issue2_killed_o,
+    output logic [63:0] issue2_xpulp_retired_o,
     output logic [63:0] l0_lookups_o,
     output logic [63:0] l0_hits_o,
 
@@ -57,6 +59,7 @@ module cv32e40p_hamsa_eval_monitor (
       .issue2_retire_i  (issue2_retire_i),
       .issue2_blocked_i (issue2_blocked_i),
       .issue2_killed_i  (issue2_killed_i),
+      .issue2_xpulp_retire_i(issue2_xpulp_retire_i),
       .l0_lookup_i      (l0_lookup_i),
       .l0_hit_i         (l0_hit_i),
       .cycles_o         (cycles_o),
@@ -65,6 +68,7 @@ module cv32e40p_hamsa_eval_monitor (
       .issue2_retired_o (issue2_retired_o),
       .issue2_blocked_o (issue2_blocked_o),
       .issue2_killed_o  (issue2_killed_o),
+      .issue2_xpulp_retired_o(issue2_xpulp_retired_o),
       .l0_lookups_o     (l0_lookups_o),
       .l0_hits_o        (l0_hits_o)
   );
