@@ -137,8 +137,10 @@ module cv32e40p_issue2_decoder
             unique case (instr_i[31:26])
               6'b00000_0: alu_operator_o = ALU_ADD; // cv.add
               6'b00001_0: alu_operator_o = ALU_SUB; // cv.sub
-              6'b00100_0: alu_operator_o = ALU_MIN; // cv.min
-              6'b00110_0: alu_operator_o = ALU_MAX; // cv.max
+              6'b00100_0: alu_operator_o = ALU_MIN;  // cv.min
+              6'b00101_0: alu_operator_o = ALU_MINU; // cv.minu
+              6'b00110_0: alu_operator_o = ALU_MAX;  // cv.max
+              6'b00111_0: alu_operator_o = ALU_MAXU; // cv.maxu
               6'b01000_0: alu_operator_o = ALU_SRL; // cv.srl
               6'b01001_0: alu_operator_o = ALU_SRA; // cv.sra
               6'b01010_0: alu_operator_o = ALU_SLL; // cv.sll
@@ -151,6 +153,10 @@ module cv32e40p_issue2_decoder
               6'b00011_1: alu_operator_o = ALU_GES; // cv.cmpge
               6'b00100_1: alu_operator_o = ALU_LTS; // cv.cmplt
               6'b00101_1: alu_operator_o = ALU_LES; // cv.cmple
+              6'b00110_1: alu_operator_o = ALU_GTU; // cv.cmpgtu
+              6'b00111_1: alu_operator_o = ALU_GEU; // cv.cmpgeu
+              6'b01000_1: alu_operator_o = ALU_LTU; // cv.cmpltu
+              6'b01001_1: alu_operator_o = ALU_LEU; // cv.cmpleu
               default: illegal_o = 1'b1;
             endcase
           end else begin
