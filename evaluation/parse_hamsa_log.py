@@ -22,7 +22,7 @@ FIELDS = [
     "benchmark", "configuration", "git_sha", "tool", "tool_version",
     "compiler", "compiler_version", "compiler_flags", "clock_mhz",
     "memory_config", "cycles", "issue1_retired", "issue2_issued",
-    "issue2_retired", "issue2_blocked", "issue2_killed", "block_raw",
+    "issue2_retired", "issue2_xpulp_retired", "issue2_blocked", "issue2_killed", "block_raw",
     "block_waw", "block_unsupported", "block_serializing", "block_busy",
     "block_decode", "l0_lookups", "l0_hits", "benchmark_score",
     "area_um2", "cell_area_um2", "fmax_mhz", "dynamic_power_mw",
@@ -44,7 +44,7 @@ def main() -> None:
     p = argparse.ArgumentParser()
     p.add_argument("log", type=Path)
     p.add_argument("--benchmark", required=True)
-    p.add_argument("--configuration", required=True, choices=["B0", "H0", "H1", "H2"])
+    p.add_argument("--configuration", required=True, choices=["B0", "H0", "H1", "H2", "H2-32", "H2-128"])
     p.add_argument("--git-sha", default="")
     p.add_argument("--tool", default="")
     p.add_argument("--tool-version", default="")
