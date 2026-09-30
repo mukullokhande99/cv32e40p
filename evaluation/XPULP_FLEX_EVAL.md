@@ -1,2 +1,13 @@
 # Xpulp/FLEX evaluation
-Compare H1 scalar Issue2 against H1+selected-Xpulp Issue2 using identical binaries where possible and intrinsic/assembly microbenchmarks for packed ops. Report cycles, IPC, pair utilization, Xpulp Issue2 utilization, blocked opportunities, area/Fmax/power and energy. Then evaluate the integrated ApproxSNN workload runtime to determine whether CPU-side packed preprocessing/control improves end-to-end latency rather than only microbench IPC.
+
+Compare identical HAMSA configurations with the Issue2 Xcv admission gate enabled/disabled. Use packed preprocessing, quantization, spike bookkeeping and control kernels that naturally map to two-source 8/16-bit SIMD.
+
+Report:
+- cycles, IPC and benchmark score
+- Issue2 issued/retired/blocked/killed
+- Issue2 Xcv retired and Xcv share of Issue2 retirement
+- pair utilization and block reasons
+- area, Fmax, power, energy/instruction
+- end-to-end ApproxSNN application latency and CPU/accelerator overlap
+
+Do not infer application benefit from microbench IPC alone. Keep compiler flags, memory timing, CPU configuration and accelerator configuration fixed for each ablation.
