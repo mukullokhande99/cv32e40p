@@ -1,0 +1,1 @@
+module tb;logic[31:0]a,b,y;logic[2:0]op;logic m8;cv32e40p_issue2_xpulp_simd d(a,b,op,m8,y);initial begin a=32'h04030201;b=32'h01010101;m8=1;op=0;#1;if(y!==32'h05040302)$fatal;op=1;#1;if(y!==32'h03020100)$fatal;a=32'h00040003;b=32'h00010002;m8=0;op=0;#1;if(y!==32'h00050005)$fatal;$finish;end endmodule
