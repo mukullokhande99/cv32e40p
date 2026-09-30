@@ -10,8 +10,9 @@
 //
 // Policy:
 //   * Issue1 remains the full CV32E40P pipeline.
-//   * Issue2 accepts RV32I OP/OP-IMM plus scalar RV32M MUL.
-//   * Memory, CSR, jumps, fence and custom instructions are kept on Issue1.
+//   * Issue2 accepts RV32I OP/OP-IMM, scalar RV32M MUL, and a dependency-simple
+//     two-source CORE-V PULP/Xcv packed ALU subset.
+//   * Memory, CSR, jumps, fence, three-source and side-effecting custom ops stay on Issue1.
 //   * Same-cycle RAW and WAW hazards from Issue1 -> Issue2 block Issue2.
 //   * Conditional branches may pair speculatively when enabled; recovery must
 //     kill the younger Issue2 operation on a taken redirect.
