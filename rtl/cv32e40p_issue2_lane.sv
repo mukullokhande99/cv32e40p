@@ -30,6 +30,7 @@ module cv32e40p_issue2_lane
   logic [4:0]  dec_rd;
   alu_opcode_e dec_alu_op;
   logic        dec_mul_en;
+  logic [1:0]  dec_vector_mode;
   logic [31:0] dec_operand_a;
   logic [31:0] dec_operand_b;
 
@@ -45,6 +46,7 @@ module cv32e40p_issue2_lane
       .rd_o          (dec_rd),
       .alu_operator_o(dec_alu_op),
       .mul_en_o      (dec_mul_en),
+      .vector_mode_o (dec_vector_mode),
       .operand_a_o   (dec_operand_a),
       .operand_b_o   (dec_operand_b)
   );
@@ -55,6 +57,7 @@ module cv32e40p_issue2_lane
       .valid_i       (dec_valid),
       .alu_operator_i(dec_alu_op),
       .mul_en_i      (dec_mul_en),
+      .vector_mode_i (dec_vector_mode),
       .operand_a_i   (dec_operand_a),
       .operand_b_i   (dec_operand_b),
       .rd_i          (dec_rd),
