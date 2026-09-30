@@ -1,0 +1,22 @@
+name: HAMSA Issue2 Xpulp
+on:
+  push:
+    branches: [feature/hamsa-dual-issue]
+  pull_request:
+jobs:
+  decode:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update && sudo apt-get install -y iverilog
+      - run: iverilog -g2012 -Irtl -o xpdec rtl/cv32e40p_pkg.sv rtl/cv32e40p_issue2_decoder.sv bhv/cv32e40p_issue2_xpulp_decode_tb.sv
+      - run: vvp xpdec
+  packed-unit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update && sudo apt-get install -y iverilog
+      - run: iverilog -g2012 -o xpsimd rtl/cv32e40p_issue2_xpulp_simd.sv bhv/cv32e40p_issue2_xpulp_simd_tb.sv
+      - run: vvp xpsimd
+      - run: iverilog -g2012 -o xprand rtl/cv32e40p_issue2_xpulp_simd.sv bhv/cv32e40p_issue2_xpulp_random_tb.sv
+      - run: vvp xprand
