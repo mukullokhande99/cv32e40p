@@ -1,4 +1,22 @@
 # Issue2 Xpulp integration status
-Packed execution RTL and directed tests exist. The remaining critical step is exact official-Xcv decode reuse from the primary CV32E40P decoder. Until that refactor is complete, the packed block is not connected to the architectural Issue2 decoder and no new/custom opcode is assigned. This is intentional to prevent encoding collisions and semantic drift.
 
-Dependency rule for the first integrated subset: exactly two GPR sources and one GPR destination, no memory side effects, no implicit accumulator and no control-flow state. This allows existing HAMSA RAW/WAW/forwarding machinery to remain valid.
+The HAMSA secondary lane now decodes an official CORE-V PULP packed two-source ALU subset directly from OPCODE_CUSTOM_3 using the same instruction fields as the primary CV32E40P decoder.
+
+Supported normal register-register packed .h/.b forms on Issue2:
+- cv.add / cv.sub
+- cv.min / cv.max
+- cv.srl / cv.sra / cv.sll
+- cv.or / cv.xor / cv.and
+- cv.cmpeq / cv.cmpne / cv.cmpgt / cv.cmpge / cv.cmplt / cv.cmple
+
+The secondary execution lane reuses cv32e40p_alu and drives its vector_mode input, preserving existing ALU semantics rather than inventing a second incompatible SIMD implementation. The IDU only admits dependency-simple two-source/one-destination normal forms.
+
+Still deliberately excluded from Issue2:
+- scalar-replicate and immediate-vector forms
+- dot products and sdot accumulate
+- three-source/rd-as-source operations
+- post-increment/indexed memory
+- hardware-loop/system/CSR/control-flow instructions
+- vector operations that require extra RF ports or side effects
+
+Issue2 Xcv retirement is now separately tagged/counted for evaluation. Full-core architectural regression remains mandatory before performance/PPA claims.
