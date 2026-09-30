@@ -51,6 +51,7 @@ module cv32e40p_dual_issue_idu #(
   localparam logic [6:0] OPC_JALR     = 7'b1100111;
   localparam logic [6:0] OPC_JAL      = 7'b1101111;
   localparam logic [6:0] OPC_SYSTEM   = 7'b1110011;
+  localparam logic [6:0] OPC_CUSTOM_3 = 7'b1111011;
 
   logic [6:0] opcode1;
   logic [6:0] opcode2;
@@ -104,6 +105,34 @@ module cv32e40p_dual_issue_idu #(
         inst2_uses_rs1         = 1'b1;
         inst2_uses_rs2         = 1'b1;
         inst2_writes_rd        = (inst2_rd_o != 5'd0);
+      end
+
+
+      OPC_CUSTOM_3: begin
+        // Official CORE-V PULP packed two-source ALU subset in normal
+        // register-register form. The execution decoder performs exact funct
+        // validation; this gate rejects scalar-replicate/immediate forms.
+        issue2_class_supported = (inst2_i[14:13] == 2'b00) &&
+                                 (inst2_i[25] == 1'b0) &&
+                                 ((inst2_i[31:26] == 6'b00000_0) ||
+                                  (inst2_i[31:26] == 6'b00001_0) ||
+                                  (inst2_i[31:26] == 6'b00100_0) ||
+                                  (inst2_i[31:26] == 6'b00110_0) ||
+                                  (inst2_i[31:26] == 6'b01000_0) ||
+                                  (inst2_i[31:26] == 6'b01001_0) ||
+                                  (inst2_i[31:26] == 6'b01010_0) ||
+                                  (inst2_i[31:26] == 6'b01011_0) ||
+                                  (inst2_i[31:26] == 6'b01100_0) ||
+                                  (inst2_i[31:26] == 6'b01101_0) ||
+                                  (inst2_i[31:26] == 6'b00000_1) ||
+                                  (inst2_i[31:26] == 6'b00001_1) ||
+                                  (inst2_i[31:26] == 6'b00010_1) ||
+                                  (inst2_i[31:26] == 6'b00011_1) ||
+                                  (inst2_i[31:26] == 6'b00100_1) ||
+                                  (inst2_i[31:26] == 6'b00101_1));
+        inst2_uses_rs1  = 1'b1;
+        inst2_uses_rs2  = 1'b1;
+        inst2_writes_rd = (inst2_rd_o != 5'd0);
       end
 
       default: begin
