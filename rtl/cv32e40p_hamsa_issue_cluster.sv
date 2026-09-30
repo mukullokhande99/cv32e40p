@@ -58,6 +58,7 @@ module cv32e40p_hamsa_issue_cluster #(
     output logic        inst2_consumed_o,
     output logic        issue2_pending_o,
     output logic        issue2_retired_o,
+    output logic        issue2_xpulp_retired_o,
     output logic        issue2_blocked_o,
 
     output logic        issue2_block_raw_o,
@@ -95,6 +96,7 @@ module cv32e40p_hamsa_issue_cluster #(
   logic issue2_accept;
   logic issue2_commit;
   logic issue2_wb_ready;
+  logic issue2_wb_xpulp;
 
   integer i;
 
@@ -173,7 +175,8 @@ module cv32e40p_hamsa_issue_cluster #(
       .decode_illegal_o(issue2_illegal),
       .wb_valid_o      (issue2_wb_valid),
       .wb_rd_o         (issue2_wb_rd),
-      .wb_data_o       (issue2_wb_data)
+      .wb_data_o       (issue2_wb_data),
+      .wb_xpulp_o      (issue2_wb_xpulp)
   );
 
   always_comb begin
@@ -220,6 +223,7 @@ module cv32e40p_hamsa_issue_cluster #(
   assign inst2_consumed_o = ENABLE_ISSUE2 && issue2_accept;
   assign issue2_pending_o  = ENABLE_ISSUE2 && issue2_wb_valid;
   assign issue2_retired_o  = ENABLE_ISSUE2 && issue2_commit;
+  assign issue2_xpulp_retired_o = ENABLE_ISSUE2 && issue2_commit && issue2_wb_xpulp;
 
   assign issue2_blocked_o  = ENABLE_ISSUE2 && inst1_valid_i && inst2_valid_i &&
                              (!issue2_valid || !issue2_ready || issue2_illegal);
