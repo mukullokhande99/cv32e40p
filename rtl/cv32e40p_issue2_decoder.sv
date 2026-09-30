@@ -18,6 +18,7 @@ module cv32e40p_issue2_decoder
     output logic [4:0]  rd_o,
     output alu_opcode_e alu_operator_o,
     output logic        mul_en_o,
+    output logic [1:0]  vector_mode_o,
     output logic [31:0] operand_a_o,
     output logic [31:0] operand_b_o
 );
@@ -38,6 +39,7 @@ module cv32e40p_issue2_decoder
     illegal_o      = 1'b0;
     alu_operator_o = ALU_ADD;
     mul_en_o       = 1'b0;
+    vector_mode_o  = 2'b00;
     operand_a_o    = rs1_data_i;
     operand_b_o    = rs2_data_i;
 
@@ -122,6 +124,37 @@ module cv32e40p_issue2_decoder
               end
               default: illegal_o = 1'b1;
             endcase
+          end
+        end
+
+
+        OPCODE_CUSTOM_3: begin
+          // Official CORE-V PULP packed ALU subset, normal register-register
+          // form only (.h/.b). Scalar-replicate/immediate and 3-source forms
+          // remain on Issue1.
+          if ((instr_i[14:13] == 2'b00) && (instr_i[25] == 1'b0)) begin
+            vector_mode_o = instr_i[12] ? VEC_MODE8 : VEC_MODE16;
+            unique case (instr_i[31:26])
+              6'b00000_0: alu_operator_o = ALU_ADD; // cv.add
+              6'b00001_0: alu_operator_o = ALU_SUB; // cv.sub
+              6'b00100_0: alu_operator_o = ALU_MIN; // cv.min
+              6'b00110_0: alu_operator_o = ALU_MAX; // cv.max
+              6'b01000_0: alu_operator_o = ALU_SRL; // cv.srl
+              6'b01001_0: alu_operator_o = ALU_SRA; // cv.sra
+              6'b01010_0: alu_operator_o = ALU_SLL; // cv.sll
+              6'b01011_0: alu_operator_o = ALU_OR;  // cv.or
+              6'b01100_0: alu_operator_o = ALU_XOR; // cv.xor
+              6'b01101_0: alu_operator_o = ALU_AND; // cv.and
+              6'b00000_1: alu_operator_o = ALU_EQ;  // cv.cmpeq
+              6'b00001_1: alu_operator_o = ALU_NE;  // cv.cmpne
+              6'b00010_1: alu_operator_o = ALU_GTS; // cv.cmpgt
+              6'b00011_1: alu_operator_o = ALU_GES; // cv.cmpge
+              6'b00100_1: alu_operator_o = ALU_LTS; // cv.cmplt
+              6'b00101_1: alu_operator_o = ALU_LES; // cv.cmple
+              default: illegal_o = 1'b1;
+            endcase
+          end else begin
+            illegal_o = 1'b1;
           end
         end
 
