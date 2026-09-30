@@ -1,0 +1,1 @@
+module tb;logic[31:0]a,b,y;logic[2:0]op;logic m8;cv32e40p_issue2_xpulp_simd d(a,b,op,m8,y);integer i;initial begin m8=1;op=0;for(i=0;i<100;i++)begin a=$random;b=$random;#1;if(y[7:0]!==a[7:0]+b[7:0])$fatal;end m8=0;for(i=0;i<100;i++)begin a=$random;b=$random;#1;if(y[15:0]!==a[15:0]+b[15:0])$fatal;end $finish;end endmodule
