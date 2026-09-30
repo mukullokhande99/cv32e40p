@@ -98,8 +98,8 @@ Currently excluded on Issue2:
 - branches/jumps;
 - CSR/system/fence instructions;
 - DIV/REM and MULH-family operations;
-- Xpulp custom/SIMD/DSP instructions not yet explicitly decoded;
-- three-source operations.
+- selected two-source packed CORE-V PULP/Xcv ALU operations are now supported on Issue2;
+- three-source Xcv dot/MAC, post-increment memory, hardware-loop/control and other side-effecting custom operations remain Issue1-only.
 
 RAW and WAW conflicts always block Issue2. Unknown/custom Issue1 instruction
 classes serialize conservatively.
@@ -156,8 +156,8 @@ be performed without changing software-visible architecture during bring-up.
    protocol and test cross-line RV32C/32-bit instruction cases.
 5. Compare the native 5R3W RF against the mirrored-RF bring-up implementation for
    area, timing and energy; select the final physical implementation.
-6. Add selected Xpulp/SIMD/DSP operations only after their dependency semantics
-   are represented in the partial decoder.
+6. Extend Xcv coverage beyond the current two-source packed ALU subset only after
+   three-source, memory-side-effect, and custom dependency semantics are represented.
 7. Run CoreMark/Embench and collect IPC, pair rate, Issue2-block reasons, L0 hit
    rate, area, Fmax and energy versus `CV32e40p-original`.
 8. FPGA and/or ASIC synthesis and timing closure before claiming PPA results.
