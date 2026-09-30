@@ -54,6 +54,17 @@ module cv32e40p_issue2_unit_tb;
     return {imm, rs1, funct3, rd, OPCODE_OPIMM};
   endfunction
 
+
+  function automatic logic [31:0] enc_cv(
+      input logic [5:0] funct6,
+      input logic [4:0] rs2,
+      input logic [4:0] rs1,
+      input logic       mode8,
+      input logic [4:0] rd
+  );
+    return {funct6,1'b0,rs2,rs1,{2'b00,mode8},rd,7'b1111011};
+  endfunction
+
   task automatic issue_and_check(
       input logic [31:0] test_instr,
       input logic [31:0] a,
@@ -112,6 +123,13 @@ module cv32e40p_issue2_unit_tb;
     // Compact RV32M subset: MUL is legal on Issue2.
     issue_and_check(enc_r(7'b0000001, 5'd2, 5'd1, 3'b000, 5'd10),
                     32'd3, 32'd4, 5'd10, 32'd12);
+
+
+    // Official CORE-V packed add on Issue2: cv.add.h and cv.add.b.
+    issue_and_check(enc_cv(6'b00000_0,5'd2,5'd1,1'b0,5'd13),
+                    32'h0002_0001,32'h0004_0003,5'd13,32'h0006_0004);
+    issue_and_check(enc_cv(6'b00000_0,5'd2,5'd1,1'b1,5'd14),
+                    32'h0403_0201,32'h0101_0101,5'd14,32'h0504_0302);
 
     // DIV (funct3=100) remains unsupported on Issue2.
     while (!issue_ready) @(posedge clk);
