@@ -15,6 +15,7 @@ module cv32e40p_hamsa_perf_counters (
     input  logic        issue2_retire_i,
     input  logic        issue2_blocked_i,
     input  logic        issue2_killed_i,
+    input  logic        issue2_xpulp_retire_i,
     input  logic        l0_lookup_i,
     input  logic        l0_hit_i,
 
@@ -24,6 +25,7 @@ module cv32e40p_hamsa_perf_counters (
     output logic [63:0] issue2_retired_o,
     output logic [63:0] issue2_blocked_o,
     output logic [63:0] issue2_killed_o,
+    output logic [63:0] issue2_xpulp_retired_o,
     output logic [63:0] l0_lookups_o,
     output logic [63:0] l0_hits_o
 );
@@ -40,6 +42,7 @@ module cv32e40p_hamsa_perf_counters (
       issue2_retired_o  <= '0;
       issue2_blocked_o  <= '0;
       issue2_killed_o   <= '0;
+      issue2_xpulp_retired_o <= '0;
       l0_lookups_o      <= '0;
       l0_hits_o         <= '0;
     end else if (clear_i) begin
@@ -49,6 +52,7 @@ module cv32e40p_hamsa_perf_counters (
       issue2_retired_o  <= '0;
       issue2_blocked_o  <= '0;
       issue2_killed_o   <= '0;
+      issue2_xpulp_retired_o <= '0;
       l0_lookups_o      <= '0;
       l0_hits_o         <= '0;
     end else begin
@@ -58,6 +62,7 @@ module cv32e40p_hamsa_perf_counters (
       if (issue2_retire_i)  issue2_retired_o <= inc_sat(issue2_retired_o);
       if (issue2_blocked_i) issue2_blocked_o <= inc_sat(issue2_blocked_o);
       if (issue2_killed_i)  issue2_killed_o  <= inc_sat(issue2_killed_o);
+      if (issue2_xpulp_retire_i) issue2_xpulp_retired_o <= inc_sat(issue2_xpulp_retired_o);
       if (l0_lookup_i)      l0_lookups_o     <= inc_sat(l0_lookups_o);
       if (l0_lookup_i && l0_hit_i)
         l0_hits_o <= inc_sat(l0_hits_o);
