@@ -55,6 +55,17 @@ module cv32e40p_dual_issue_idu_tb;
     return {imm, rs1, funct3, rd, opcode};
   endfunction
 
+
+  function automatic logic [31:0] enc_cv(
+      input logic [5:0] funct6,
+      input logic [4:0] rs2,
+      input logic [4:0] rs1,
+      input logic       mode8,
+      input logic [4:0] rd
+  );
+    return {funct6,1'b0,rs2,rs1,{2'b00,mode8},rd,7'b1111011};
+  endfunction
+
   task automatic expect_issue2(input logic expected, input string name);
     #1;
     if (issue2_valid !== expected) begin
@@ -100,6 +111,14 @@ module cv32e40p_dual_issue_idu_tb;
     // DIV remains unsupported.
     inst2 = enc_r(7'b0000001, 5'd5, 5'd4, 3'b100, 5'd6, 7'b0110011);
     expect_issue2(1'b0, "Issue2 DIV unsupported");
+
+
+    inst1 = enc_r(7'b0000000,5'd2,5'd1,3'b000,5'd3,7'b0110011);
+    inst2 = enc_cv(6'b00000_0,5'd5,5'd4,1'b1,5'd6);
+    expect_issue2(1'b1,"Issue2 Xcv packed add supported");
+
+    inst2 = enc_cv(6'b10011_0,5'd5,5'd4,1'b1,5'd6);
+    expect_issue2(1'b0,"Issue2 Xcv dot/accumulate remains unsupported");
 
     // Default IDU instance remains conservative behind branches. The HAMSA
     // issue cluster enables SPECULATE_BEHIND_BRANCH and relies on recovery kill.
