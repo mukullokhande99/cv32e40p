@@ -1,0 +1,2 @@
+# Xpulp/FLEX evaluation
+Compare H1 scalar Issue2 against H1+selected-Xpulp Issue2 using identical binaries where possible and intrinsic/assembly microbenchmarks for packed ops. Report cycles, IPC, pair utilization, Xpulp Issue2 utilization, blocked opportunities, area/Fmax/power and energy. Then evaluate the integrated ApproxSNN workload runtime to determine whether CPU-side packed preprocessing/control improves end-to-end latency rather than only microbench IPC.
