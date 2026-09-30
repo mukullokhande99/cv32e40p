@@ -9,6 +9,8 @@ module tb;
   ins=cvrr(6'b000000,1,2,1,3);#1;if(ill||!vo||op!=ALU_ADD||vm!=VEC_MODE8)$fatal("cv.add.b decode");
   ins=cvrr(6'b001000,0,2,1,3);#1;if(ill||op!=ALU_MIN||vm!=VEC_MODE16)$fatal("cv.min.h decode");
   ins=cvrr(6'b011010,1,2,1,3);#1;if(ill||op!=ALU_AND)$fatal("cv.and.b decode");
+  ins=cvrr(6'b001010,1,2,1,3);#1;if(ill||op!=ALU_MINU)$fatal("cv.minu.b decode");
+  ins=cvrr(6'b001101,0,2,1,3);#1;if(ill||op!=ALU_GTU)$fatal("cv.cmpgtu.h decode");
   ins=cvrr(6'b111111,1,2,1,3);#1;if(!ill||vo)$fatal("unsupported accepted");
   ins=cvrr(6'b000000,1,2,1,3);ins[14]=1'b1;#1;if(!ill)$fatal("scalar replicate must stay Issue1");
   $display("PASS official Xcv Issue2 decode");$finish;
